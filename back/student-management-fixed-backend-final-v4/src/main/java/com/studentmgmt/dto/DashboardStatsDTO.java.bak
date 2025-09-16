@@ -1,0 +1,31 @@
+package com.studentmgmt.dto;
+
+import java.math.BigDecimal;
+
+public class DashboardStatsDTO {
+    private Long totalStudents;
+    private Long activeCourses;
+    private BigDecimal averageGrade;
+    private BigDecimal graduationRate;
+
+    public DashboardStatsDTO() {}
+
+    public DashboardStatsDTO(Long totalStudents, Long activeCourses, BigDecimal averageGrade, BigDecimal graduationRate) {
+        this.totalStudents = totalStudents;
+        this.activeCourses = activeCourses;
+        this.averageGrade = averageGrade;
+        this.graduationRate = graduationRate;
+    }
+
+    public Long getTotalStudents() { return totalStudents; }
+    public void setTotalStudents(Long totalStudents) { this.totalStudents = totalStudents; }
+
+    public Long getActiveCourses() { return activeCourses; }
+    public void setActiveCourses(Long activeCourses) { this.activeCourses = activeCourses; }
+
+    public BigDecimal getAverageGrade() { return averageGrade; }
+    public void setAverageGrade(BigDecimal averageGrade) { this.averageGrade = averageGrade; }
+
+    public BigDecimal getGraduationRate() { return graduationRate; }
+    public void setGraduationRate(BigDecimal graduationRate) { this.graduationRate = graduationRate; }
+}

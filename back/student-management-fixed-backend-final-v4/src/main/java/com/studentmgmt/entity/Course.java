@@ -1,0 +1,95 @@
+package com.studentmgmt.entity;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Table(name = "courses")
+public class Course {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private String id;
+
+    @Column(name = "course_id", unique = true, nullable = false)
+    @NotBlank
+    private String courseId;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String name;
+
+    private String description;
+
+    @Column(nullable = false)
+    @NotBlank
+    private String instructor;
+
+    @Column(nullable = false)
+    @Positive
+    private Integer capacity;
+
+    @Column(nullable = false)
+    @Positive
+    private Integer credits;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    // Enrollments are mapped by Enrollment.course (keep if Enrollment has a 'course' field)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Enrollment> enrollments;
+
+    public Course() {}
+
+    public Course(String courseId, String name, String instructor, Integer capacity, Integer credits) {
+        this.courseId = courseId;
+        this.name = name;
+        this.instructor = instructor;
+        this.capacity = capacity;
+        this.credits = credits;
+    }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getCourseId() { return courseId; }
+    public void setCourseId(String courseId) { this.courseId = courseId; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getInstructor() { return instructor; }
+    public void setInstructor(String instructor) { this.instructor = instructor; }
+
+    public Integer getCapacity() { return capacity; }
+    public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
+    public Integer getCredits() { return credits; }
+    public void setCredits(Integer credits) { this.credits = credits; }
+
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean isActive) { this.isActive = isActive; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public List<Enrollment> getEnrollments() { return enrollments; }
+    public void setEnrollments(List<Enrollment> enrollments) { this.enrollments = enrollments; }
+
+    // Note: we intentionally do NOT expose a grades collection here because
+    // the Grade entity in this project uses courseId as a simple String (no JPA relation).
+}

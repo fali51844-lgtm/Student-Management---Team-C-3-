@@ -1,0 +1,104 @@
+package com.studentmgmt.service;
+
+import com.studentmgmt.dto.GradeDTO;
+import com.studentmgmt.entity.Course;
+import com.studentmgmt.entity.Grade;
+import com.studentmgmt.entity.Student;
+import com.studentmgmt.repository.CourseRepository;
+import com.studentmgmt.repository.GradeRepository;
+import com.studentmgmt.repository.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class GradeService {
+    
+    @Autowired
+    private GradeRepository gradeRepository;
+    
+    @Autowired
+    private StudentRepository studentRepository;
+    
+    @Autowired
+    private CourseRepository courseRepository;
+    
+    public List<GradeDTO> getGradesByStudentId(String studentId) {
+        return gradeRepository.findByStudentId(studentId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<GradeDTO> getGradesByCourseId(String courseId) {
+        return gradeRepository.findByCourseId(courseId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public Optional<GradeDTO> createGrade(GradeDTO gradeDTO) {
+        Optional<Student> studentOpt = studentRepository.findById(gradeDTO.getStudentId());
+        Optional<Course> courseOpt = courseRepository.findById(gradeDTO.getCourseId());
+        
+        if (studentOpt.isEmpty() || courseOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Grade grade = convertToEntity(gradeDTO);
+        grade.setStudent(studentOpt.get());
+        grade.setCourse(courseOpt.get());
+        
+        Grade savedGrade = gradeRepository.save(grade);
+        return Optional.of(convertToDTO(savedGrade));
+    }
+    
+    public Optional<GradeDTO> updateGrade(String id, GradeDTO gradeDTO) {
+        return gradeRepository.findById(id).map(grade -> {
+            updateGradeFields(grade, gradeDTO);
+            Grade savedGrade = gradeRepository.save(grade);
+            return convertToDTO(savedGrade);
+        });
+    }
+    
+    public boolean deleteGrade(String id) {
+        if (gradeRepository.existsById(id)) {
+            gradeRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+    
+    private GradeDTO convertToDTO(Grade grade) {
+        GradeDTO dto = new GradeDTO();
+        dto.setId(grade.getId());
+        dto.setStudentId(grade.getStudent().getId());
+        dto.setCourseId(grade.getCourse().getId());
+        dto.setGrade(grade.getGrade());
+        dto.setLetterGrade(grade.getLetterGrade());
+        dto.setSemester(grade.getSemester());
+        dto.setYear(grade.getYear());
+        dto.setCreatedAt(grade.getCreatedAt());
+        return dto;
+    }
+    
+    private Grade convertToEntity(GradeDTO dto) {
+        Grade grade = new Grade();
+        grade.setId(dto.getId());
+        grade.setGrade(dto.getGrade());
+        grade.setLetterGrade(dto.getLetterGrade());
+        grade.setSemester(dto.getSemester());
+        grade.setYear(dto.getYear());
+        return grade;
+    }
+    
+    private void updateGradeFields(Grade grade, GradeDTO dto) {
+        if (dto.getGrade() != null) grade.setGrade(dto.getGrade());
+        if (dto.getLetterGrade() != null) grade.setLetterGrade(dto.getLetterGrade());
+        if (dto.getSemester() != null) grade.setSemester(dto.getSemester());
+        if (dto.getYear() != null) grade.setYear(dto.getYear());
+    }
+}
